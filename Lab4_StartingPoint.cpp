@@ -2,6 +2,8 @@
 #include <cmath>
 using namespace std;
 
+#include <omp.h>
+
 const int Num_Elements = 10;
 
 int main()
@@ -11,7 +13,8 @@ int main()
     int sum = 0;
     int i = 0;
 
-    cout << "Prefix_Array :- " << " ";
+    // Sequential
+    cout << "Sequential Prefix Array :- " << " ";
     i = 0;
 
     while (i < 10)
@@ -21,6 +24,15 @@ int main()
         cout << Prefix_Array[i++] << " ";
     }
     cout << endl;
+
+    // Parallel
+    cout << "Parallel Prefix Array :- " << " ";
+    
+    //  parallel for block
+    //      for (elements of array)
+    //      sum block
+    //      add sum to array
+    //          
 
     return 1;
 }
