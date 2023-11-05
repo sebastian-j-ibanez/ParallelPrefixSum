@@ -5,7 +5,6 @@
 using namespace std;
 
 const int Num_Elements = 10;
-const int MAX_THREADS = 2;
 
 int main()
 {
@@ -17,8 +16,7 @@ int main()
     // Sequential
     std::cout << "Sequential Prefix Array :- " << " ";
 
-    while (i < 10)
-    {
+    while (i < 10) {
         sum += Original_Array[i];
         Seq_Sum[i] = sum;
         cout << Seq_Sum[i++] << " ";
@@ -26,26 +24,29 @@ int main()
    std::cout << endl;
 
     // Parallel
-    
-    //  parallel for 
-    //      for (i = 0; i < log(elements of array - 1); i++)
-    //          for (k = 0; k < elements of array 
-    //      add sum to array
+   int Par_Sum[Num_Elements] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    int limit = std::log2(Num_Elements) + 1;
 
-    std::cout << "Parallel Prefix Array :- ";
-    
-    int Par_Sum[10];
-    sum = 0;
-    i = 0;
-    int chunk_size = Num_Elements / MAX_THREADS;
+    for (int depth = 1; depth <= limit; depth++) {
+#pragma omp barrier
+        int step = std::pow(2, depth - 1);
+        int Temp_Sum[Num_Elements] = { 0 };
+        
+#pragma omp parallel for shared(Par_Sum, Temp_Sum)
+        for (int k = step; k < Num_Elements; k++) {
+            Temp_Sum[k] = Par_Sum[k - step] + Par_Sum[k];
+        }
 
-#pragma omp parallel for num_threads(MAX_THREADS) schedule(static, chunk_size)
-    for (i = 0; i < Num_Elements; i++)
+#pragma omp parallel for shared (Par_Sum, Temp_Sum)
+        for (int k = step; k < Num_Elements; k++) {
+            Par_Sum[k] = Temp_Sum[k];
+        }
+    }
+
+    std::cout << "Parallel   Prefix Array :-  ";
+    for (int i = 0; i < Num_Elements; i++) 
     {
-        cout << omp_get_thread_num() << " ";
-        sum += Original_Array[i];
-        Par_Sum[i] = sum;
-        cout << Par_Sum[i] << "\n";
+        cout << Par_Sum[i] << " ";
     }
 
     return 1;
